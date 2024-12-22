@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,23 +9,38 @@ using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
 using Domain.DTO;
 using Repository.Data;
+using Service.Interface;
 
 namespace Subjectify.Controllers
 {
     public class SubjectController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUsersService _usersService;
 
-        public SubjectController(ApplicationDbContext context)
+        public SubjectController(ApplicationDbContext context, IUsersService usersService)
         {
             _context = context;
+            _usersService = usersService;
         }
 
         // GET: Subject
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Subjects.Include(s => s.Faculty);
-            return View(await applicationDbContext.ToListAsync());
+            var subjectsDb = _context.Subjects.Include(s => s.Faculty);
+            List<Subject> subjects = new List<Subject>();
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = _usersService.GetPlatformUserById(currentUserId);
+            if (User.IsInRole("Student"))
+            {
+                subjects = subjectsDb.Where(s => s.FacultyId == user.Student.FacultyId).ToList();
+            }
+
+            if (User.IsInRole("Admin"))
+            {
+                subjects = subjectsDb.ToList();
+            }
+            return View(subjects);
         }
 
         // GET: Subject/Details/5
@@ -54,7 +70,8 @@ namespace Subjectify.Controllers
                     PositiveComment = r.PositiveComment,
                     NegativeComment = r.NegativeComment
                 }).ToList(),
-                AverageReviewScore = subject.Reviews.Any() ? subject.Reviews.Average(r => r.Rating) : 0
+                AverageReviewScore = subject.Reviews.Any() ? subject.Reviews.Average(r => r.Rating) : 0,
+                SubjectId = id
             };
 
            

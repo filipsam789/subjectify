@@ -17,6 +17,21 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
+            modelBuilder.Entity("CategorySubject", b =>
+                {
+                    b.Property<Guid>("CategoriesId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SubjectsId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CategoriesId", "SubjectsId");
+
+                    b.HasIndex("SubjectsId");
+
+                    b.ToTable("CategorySubject");
+                });
+
             modelBuilder.Entity("Domain.DomainModels.Admin", b =>
                 {
                     b.Property<Guid>("Id")
@@ -25,7 +40,22 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Admins", (string)null);
+                    b.ToTable("Admins");
+                });
+
+            modelBuilder.Entity("Domain.DomainModels.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Faculty", b =>
@@ -45,7 +75,7 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("UniversityId");
 
-                    b.ToTable("Faculties", (string)null);
+                    b.ToTable("Faculties");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Professor", b =>
@@ -69,7 +99,7 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Professors", (string)null);
+                    b.ToTable("Professors");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Review", b =>
@@ -77,6 +107,9 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("NegativeComment")
                         .HasColumnType("TEXT");
@@ -102,7 +135,23 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("Domain.DomainModels.ReviewRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ReviewId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReviewId");
+
+                    b.ToTable("ReviewRequests");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Student", b =>
@@ -118,7 +167,7 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Subject", b =>
@@ -143,7 +192,7 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.University", b =>
@@ -158,7 +207,7 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Universities", (string)null);
+                    b.ToTable("Universities");
                 });
 
             modelBuilder.Entity("Domain.IdentityModels.SubjectifyUser", b =>
@@ -387,7 +436,22 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
 
                     b.HasIndex("SubjectsId");
 
-                    b.ToTable("ProfessorSubject", (string)null);
+                    b.ToTable("ProfessorSubject");
+                });
+
+            modelBuilder.Entity("CategorySubject", b =>
+                {
+                    b.HasOne("Domain.DomainModels.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.DomainModels.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Faculty", b =>
@@ -429,6 +493,17 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("Domain.DomainModels.ReviewRequest", b =>
+                {
+                    b.HasOne("Domain.DomainModels.Review", "Review")
+                        .WithMany()
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Student", b =>

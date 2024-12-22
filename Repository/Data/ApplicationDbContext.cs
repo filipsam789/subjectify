@@ -20,4 +20,6 @@ public class ApplicationDbContext : IdentityDbContext<SubjectifyUser>
     public virtual DbSet<University> Universities { get; set; }
     public virtual DbSet<Review> Reviews { get; set; }
     public virtual DbSet<SubjectifyUser> SubjectifyUsers { get; set; }
+    public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<ReviewRequest> ReviewRequests { get; set; }
 }

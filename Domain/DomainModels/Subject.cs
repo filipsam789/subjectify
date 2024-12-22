@@ -15,4 +15,6 @@ public class Subject: BaseEntity
     public Guid FacultyId { get; set; }
     [JsonProperty(ReferenceLoopHandling = ReferenceLoopHandling.Ignore)]
     public List<Professor> Professors { get; set; } = new();
+    [JsonProperty(ReferenceLoopHandling = ReferenceLoopHandling.Ignore)]
+    public List<Category> Categories { get; set; } = new();
 }

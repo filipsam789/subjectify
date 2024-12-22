@@ -82,7 +82,7 @@ namespace Subjectify.Controllers
                 review.Timestamp=DateTime.Now;
                 _context.Add(review);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Subject", new { id = review.SubjectId });
             }
             ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Id", review.StudentId);
             ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", review.SubjectId);

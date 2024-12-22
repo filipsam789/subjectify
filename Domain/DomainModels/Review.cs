@@ -16,4 +16,5 @@ public class Review: BaseEntity
     public string? PositiveComment { get; set; }
     public string? NegativeComment { get; set; }
     public DateTime Timestamp { get; set; }
+    public bool IsApproved { get; set; } = false;
 }

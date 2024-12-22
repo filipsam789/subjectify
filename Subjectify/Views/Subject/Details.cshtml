@@ -46,7 +46,7 @@ else
 @if (User.IsInRole("Student"))
 {
 <div class="mb-4">
-    <a class="btn btn-primary btn-lg" asp-action="Create" asp-route-subjectId="@Model.Name" asp-controller="Reviews">Add Review</a>
+    <a class="btn btn-primary btn-lg" asp-action="Create" asp-route-subjectId="@Model.SubjectId" asp-controller="Reviews">Add Review</a>
 </div>
 }
 
