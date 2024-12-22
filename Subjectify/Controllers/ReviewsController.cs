@@ -1,19 +1,23 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
 using Microsoft.AspNetCore.Authorization;
 using Repository.Data;
+using Service.Interface;
 
 namespace Subjectify.Controllers
 {
     public class ReviewsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUsersService _usersService;
 
-        public ReviewsController(ApplicationDbContext context)
+        public ReviewsController(ApplicationDbContext context, IUsersService usersService)
         {
             _context = context;
+            _usersService = usersService;
         }
 
         // GET: Reviews
@@ -45,11 +49,23 @@ namespace Subjectify.Controllers
 
         // GET: Reviews/Create
         [Authorize(Roles = "Student")]
-        public IActionResult Create()
+        public IActionResult Create(Guid? subjectId)
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Id");
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id");
-            return View();
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (subjectId == null)
+            {
+                ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name");
+            }
+            else
+            {
+                ViewBag.SubjectId = subjectId;
+            }
+            
+            ViewBag.StudentId = _usersService.GetPlatformUserById(currentUserId).StudentId;
+            Review model = new Review();
+            var studentId = _usersService.GetPlatformUserById(currentUserId)?.StudentId;
+            model.StudentId = (Guid)studentId;
+            return View(model);
         }
 
         // POST: Reviews/Create
@@ -58,11 +74,12 @@ namespace Subjectify.Controllers
         [Authorize(Roles = "Student")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SubjectId,StudentId,Rating,PositiveComment,NegativeComment,Timestamp,Id")] Review review)
+        public async Task<IActionResult> Create([Bind("SubjectId,StudentId,Rating,PositiveComment,NegativeComment,Id")] Review review)
         {
             if (ModelState.IsValid)
             {
                 review.Id = Guid.NewGuid();
+                review.Timestamp=DateTime.Now;
                 _context.Add(review);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

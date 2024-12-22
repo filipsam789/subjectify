@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
+using Domain.DTO;
 using Repository.Data;
 
 namespace Subjectify.Controllers
@@ -28,24 +29,38 @@ namespace Subjectify.Controllers
 
         // GET: Subject/Details/5
         public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var subject = await _context.Subjects
-                .Include(s => s.Faculty)
+        {var subject = _context.Subjects
                 .Include(s => s.Professors)
                 .Include(s => s.Reviews)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .ThenInclude(r => r.Student)  
+                .FirstOrDefault(s => s.Id == id);
+
             if (subject == null)
             {
                 return NotFound();
             }
 
-            return View(subject);
+            var subjectDetailsDTO = new SubjectDetailsDTO
+            {
+                Name = subject.Name,
+                Professors = subject.Professors.Select(p => new ProfessorDTO
+                {
+                    FirstName = p.FirstName,
+                    LastName = p.LastName
+                }).ToList(),
+                Reviews = subject.Reviews.Select(r => new ReviewDTO
+                {
+                    Rating = r.Rating,
+                    PositiveComment = r.PositiveComment,
+                    NegativeComment = r.NegativeComment
+                }).ToList(),
+                AverageReviewScore = subject.Reviews.Any() ? subject.Reviews.Average(r => r.Rating) : 0
+            };
+
+           
+            return View(subjectDetailsDTO);
         }
+        
 
         // GET: Subject/Create
         public IActionResult Create()

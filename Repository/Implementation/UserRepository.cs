@@ -25,6 +25,7 @@ public class UserRepository : IUserRepository
     public SubjectifyUser? Get(string id)
     {
         return entities
+            .Include(u=>u.Student)
             .SingleOrDefault(s => s.Id == id);
     }
     

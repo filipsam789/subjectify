@@ -1,54 +1,70 @@
 @model Domain.DomainModels.Review
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+ViewData["Title"] = "Create";
+Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
 
-<h4>Review</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="SubjectId" class="control-label"></label>
-                <select asp-for="SubjectId" class ="form-control" asp-items="ViewBag.SubjectId"></select>
+<h1 class="text-center mt-4">Create Review</h1>
+<hr class="mb-4" />
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                
             </div>
-            <div class="form-group">
-                <label asp-for="StudentId" class="control-label"></label>
-                <select asp-for="StudentId" class ="form-control" asp-items="ViewBag.StudentId"></select>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert" style="display:none;"></div>
+
+                    @if (ViewBag.SubjectId != null && ViewBag.SubjectId is IEnumerable<SelectListItem>)
+                    {
+                    <select asp-for="SubjectId" class="form-select" asp-items="ViewBag.SubjectId"></select>
+                    }
+                    else
+                    {
+                    <input asp-for="SubjectId" type="hidden"  />
+                    }
+                    
+                    <input asp-for="StudentId" type="hidden" />
+
+                    <!-- 5-star rating -->
+                    <div class="mb-3">
+                        <label asp-for="Rating" class="form-label">Rating</label>
+                        <div class=" my-3">
+                            <div class="btn-group" role="group">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    
+                                <input type="radio" class="btn-check" id="star-@i" name="Rating" value="@i" />
+                                <label class="btn btn-outline-warning fw-bold" for="star-@i">@i ★</label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PositiveComment" class="form-label">Positive Comment</label>
+                        <textarea asp-for="PositiveComment" class="form-control" rows="3" placeholder="Write something positive..."></textarea>
+                        <span asp-validation-for="PositiveComment" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NegativeComment" class="form-label">Negative Comment</label>
+                        <textarea asp-for="NegativeComment" class="form-control" rows="3" placeholder="Write something that could be improved..."></textarea>
+                        <span asp-validation-for="NegativeComment" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Review</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Rating" class="control-label"></label>
-                <input asp-for="Rating" class="form-control" />
-                <span asp-validation-for="Rating" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PositiveComment" class="control-label"></label>
-                <input asp-for="PositiveComment" class="form-control" />
-                <span asp-validation-for="PositiveComment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NegativeComment" class="control-label"></label>
-                <input asp-for="NegativeComment" class="form-control" />
-                <span asp-validation-for="NegativeComment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Timestamp" class="control-label"></label>
-                <input asp-for="Timestamp" class="form-control" />
-                <span asp-validation-for="Timestamp" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="text-center mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
 </div>
-

@@ -1,4 +1,5 @@
-@model Domain.DomainModels.Subject
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Domain.DTO.SubjectDetailsDTO
 
 @{
 ViewData["Title"] = "Subject Details";
@@ -14,7 +15,7 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 
 <!-- Subject Name Section -->
 <div class="text-center mb-4">
-    <h1 class="display-4 text-dark">@Html.DisplayFor(model => model.Name)</h1>
+    <h1 class="display-4 text-dark">@Model.Name</h1>
 </div>
 
 <!-- Professors Section -->
@@ -27,7 +28,7 @@ Layout = "~/Views/Shared/_Layout.cshtml";
             @foreach (var professor in Model.Professors)
             {
             <div class="col-md-4 mb-3">
-                <div class="card p-3">
+                <div class="card p-3 shadow-sm border-light">
                     <h5 class="text-dark">@professor.FirstName @professor.LastName</h5>
                 </div>
             </div>
@@ -41,11 +42,12 @@ else
 <p class="mt-3">No professors found for this subject.</p>
 }
 
+<!-- Add Review Button for Students -->
 @if (User.IsInRole("Student"))
 {
-    <div class="mb-4">
-        <a class="btn btn-success btn-lg" asp-action="Create" asp-controller="Reviews">Add Review</a>
-    </div>
+<div class="mb-4">
+    <a class="btn btn-primary btn-lg" asp-action="Create" asp-route-subjectId="@Model.Name" asp-controller="Reviews">Add Review</a>
+</div>
 }
 
 <!-- Average Review Score -->
@@ -55,38 +57,55 @@ else
     <div class="card-body">
         <h4 class="mb-4">Average Review Score</h4>
         <div class="text-center" id="averageReviewScore">
-            <!-- Stars will be rendered here dynamically -->
+            <div class="my-3">
+                @for (int i = 1; i <= 5; i++)
+                {
+                if (Model.AverageReviewScore >= i)
+                {
+                <i class="bi bi-star-fill text-warning"></i> <!-- Filled star -->
+                }
+                else
+                {
+                <i class="bi bi-star text-muted"></i> <!-- Empty star -->
+                }
+                }
+            </div>
         </div>
     </div>
 </div>
+
 }
 
 <!-- Reviews Section -->
 @if (Model.Reviews != null && Model.Reviews.Any())
 {
-<div class="card">
+<div class="card mb-4">
     <div class="card-body">
         <h4 class="mb-4">Reviews</h4>
 
-        <!-- Loop over reviews and display -->
-        @foreach (var review in Model.Reviews)
-        {
-        <div class="mb-4">
-            <div class="d-flex align-items-center">
-                @for (int i = 1; i <= 5; i++)
-                {
-                <i class="bi bi-star @((i <= review.Rating) ? "text-warning" : "text-muted")"></i>
-                }
-                <span class="ms-2">(@review.Rating/5)</span>
-            </div>
-            <p class="mt-2">
-                @review.PositiveComment
-            </p>
-            <p class="mt-2">
-                @review.NegativeComment
-            </p>
+        <!-- Sorting Buttons -->
+        <div class="mb-3">
+            <button class="btn btn-outline-primary" onclick="sortReviews('desc')">Sort by Rating (Highest to Lowest)</button>
+            <button class="btn btn-outline-primary" onclick="sortReviews('asc')">Sort by Rating (Lowest to Highest)</button>
         </div>
-        }
+
+        <!-- Loop over reviews and display -->
+        <div id="reviewsContainer">
+            @foreach (var review in Model.Reviews)
+            {
+            <div class="review-item mb-4" data-rating="@review.Rating">
+                <div class="d-flex align-items-center">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                    <i class="bi bi-star @((i <= review.Rating) ? "text-warning" : "text-muted")"></i>
+                    }
+                    <span class="ms-2">(@review.Rating/5)</span>
+                </div>
+                <p class="mt-2"><strong>Positive Comment:</strong> @review.PositiveComment</p>
+                <p class="mt-2"><strong>Negative Comment:</strong> @review.NegativeComment</p>
+            </div>
+            }
+        </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-center mt-4">
@@ -109,29 +128,27 @@ else
 
 @section Scripts {
 <script>
-    $(document).ready(function () {
-        // Calculate and render the average review score dynamically
-        var reviews = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Reviews));  // Serialize reviews into JavaScript array
-        if (reviews.length > 0) {
-            var totalScore = 0;
-            reviews.forEach(function (review) {
-                totalScore += review.Score;
-            });
+    // Function to sort reviews
+    function sortReviews(order) {
+        var reviewsContainer = document.getElementById('reviewsContainer');
+        var reviews = Array.from(reviewsContainer.getElementsByClassName('review-item'));
 
-            var averageScore = totalScore / reviews.length;
+        // Sort reviews by rating (either ascending or descending)
+        reviews.sort(function(a, b) {
+            var ratingA = parseFloat(a.getAttribute('data-rating'));
+            var ratingB = parseFloat(b.getAttribute('data-rating'));
 
-            // Render the average score as stars
-            var stars = '';
-            for (var i = 1; i <= 5; i++) {
-                if (i <= averageScore) {
-                    stars += '<i class="bi bi-star text-warning"></i>';
-                } else {
-                    stars += '<i class="bi bi-star text-muted"></i>';
-                }
+            if (order === 'desc') {
+                return ratingB - ratingA; // Sort descending
+            } else {
+                return ratingA - ratingB; // Sort ascending
             }
+        });
 
-            $('#averageReviewScore').html(stars);  // Update the DOM with the stars
-        }
-    });
+        // Append sorted reviews back to the container
+        reviews.forEach(function(review) {
+            reviewsContainer.appendChild(review);
+        });
+    }
 </script>
 }
