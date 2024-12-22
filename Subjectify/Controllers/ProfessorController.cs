@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
+using Microsoft.AspNetCore.Authorization;
 using Repository.Data;
 
 namespace Subjectify.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProfessorController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -45,6 +47,7 @@ namespace Subjectify.Controllers
             return View(professor);
         }
 
+        
         // GET: Professor/Create
         public IActionResult Create()
         {
@@ -55,6 +58,7 @@ namespace Subjectify.Controllers
         // POST: Professor/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FirstName,LastName,FacultyId,Id")] Professor professor)
@@ -69,7 +73,8 @@ namespace Subjectify.Controllers
             ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name", professor.FacultyId);
             return View(professor);
         }
-
+        
+        [Authorize(Roles = "Admin")]
         // GET: Professor/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
@@ -90,6 +95,7 @@ namespace Subjectify.Controllers
         // POST: Professor/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("FirstName,LastName,FacultyId,Id")] Professor professor)
@@ -122,7 +128,8 @@ namespace Subjectify.Controllers
             ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name", professor.FacultyId);
             return View(professor);
         }
-
+        
+        
         // GET: Professor/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {

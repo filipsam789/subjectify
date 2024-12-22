@@ -130,6 +130,10 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.Property<Guid>("FacultyId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("StudentId")
                         .HasColumnType("TEXT");
 

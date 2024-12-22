@@ -1,31 +1,48 @@
 @model Domain.DomainModels.Faculty
 
 @{
-    ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+ViewData["Title"] = "Faculty Details";
+Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<!-- Back Button with Icon at the Top Left -->
+<div class="d-flex justify-content-start mb-3">
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
 
-<div>
-    <h4>Faculty</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.University)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.University.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
+<!-- Faculty Name and University Section -->
+<div class="text-center mb-4">
+    <h1 class="display-4 text-dark">@Html.DisplayFor(model => model.Name)</h1>
+    <h4 class="text-muted">@Html.DisplayFor(model => model.University.Name)</h4>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<!-- Subjects Section with a Heading -->
+@if (Model.Subjects != null && Model.Subjects.Any())
+{
+<div class="card">
+    <div class="card-body">
+        <h4 class="mb-4">Subjects Taught</h4>
+        <table class="table table-bordered table-hover">
+            <tbody>
+            @foreach (var subject in Model.Subjects)
+            {
+            <tr>
+                <td class="p-4">
+                    <a class="d-block fs-4 fw-bold text-dark text-decoration-none"
+                       asp-controller="Subject" asp-action="Details" asp-route-id="@subject.Id">
+                        @subject.Name
+                    </a>
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>
+}
+else
+{
+<p class="mt-3">No subjects found for this faculty.</p>
+}

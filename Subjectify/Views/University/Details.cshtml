@@ -5,21 +5,42 @@ ViewData["Title"] = "University Details";
 Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<!-- Back Button with Icon at the Top Left -->
+<div class="d-flex justify-content-start mb-3">
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
 
-<div>
-    <h4>University</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
+<!-- University Name Section -->
+<div class="text-center mb-4">
+    <h1 class="display-4 text-primary">@Html.DisplayFor(model => model.Name)</h1>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<!-- Faculties Section -->
+@if (Model.Faculties != null && Model.Faculties.Any())
+{
+<div class="card">
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <tbody>
+            @foreach (var faculty in Model.Faculties)
+            {
+            <tr>
+                <td class="p-4">
+                    <a class="d-block fs-4 text-dark fw-bold text-decoration-none"
+                       asp-controller="Faculty" asp-action="Details" asp-route-id="@faculty.Id">
+                        @faculty.Name
+                    </a>
+                </td>
+            </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>
+}
+else
+{
+<p class="mt-3">No faculties found for this university.</p>
+}

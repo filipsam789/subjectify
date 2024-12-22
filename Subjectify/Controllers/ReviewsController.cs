@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
+using Microsoft.AspNetCore.Authorization;
 using Repository.Data;
 
 namespace Subjectify.Controllers
@@ -47,6 +44,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Reviews/Create
+        [Authorize(Roles = "Student")]
         public IActionResult Create()
         {
             ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Id");
@@ -57,6 +55,7 @@ namespace Subjectify.Controllers
         // POST: Reviews/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Student")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SubjectId,StudentId,Rating,PositiveComment,NegativeComment,Timestamp,Id")] Review review)
@@ -74,6 +73,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Reviews/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -94,6 +94,7 @@ namespace Subjectify.Controllers
         // POST: Reviews/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("SubjectId,StudentId,Rating,PositiveComment,NegativeComment,Timestamp,Id")] Review review)
@@ -129,6 +130,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Reviews/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -149,6 +151,7 @@ namespace Subjectify.Controllers
         }
 
         // POST: Reviews/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)

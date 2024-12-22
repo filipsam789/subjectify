@@ -35,4 +35,12 @@
       <Folder Include="Areas\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Subject\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Subject\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Subject\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Subject\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Subject\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

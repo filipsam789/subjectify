@@ -57,10 +57,28 @@
                 <span asp-validation-for="Input.Role" class="text-danger"></span>
             </div>
 
-            <div id="programmingLanguageContainer" class="form-floating mb-3 d-none">
-                <input asp-for="Input.ProgrammingLanguage" class="form-control" aria-required="true" placeholder="Programming Language" />
-                <label asp-for="Input.ProgrammingLanguage">Programming Language</label>
-                <span asp-validation-for="Input.ProgrammingLanguage" class="text-danger"></span>
+            <div id="universityContainer" class="form-floating mb-3 d-none">
+                <select asp-for="Input.UniversityId" class="form-control" aria-required="true" aria-placeholder="University">
+                    <option value="">Select a University</option>  <!-- Optional default option -->
+                    @foreach (var university in Model.Input.Universities)
+                    {
+                    <option value="@university.Id">@university.Name</option>
+                    }
+                </select>
+                <label asp-for="Input.UniversityId">University</label>
+                <span asp-validation-for="Input.UniversityId" class="text-danger"></span>
+            </div>
+
+            <div id="facultyContainer" class="form-floating mb-3 d-none">
+                <select asp-for="Input.FacultyId" class="form-control" aria-required="true" aria-placeholder="Faculty">
+                    <option value="">Select a Faculty</option>  <!-- Optional default option -->
+                    @foreach (var faculty in Model.Input.Faculties)
+                    {
+                    <option value="@faculty.Id">@faculty.Name</option>
+                    }
+                </select>
+                <label asp-for="Input.FacultyId">Faculty</label>
+                <span asp-validation-for="Input.FacultyId" class="text-danger"></span>
             </div>
 
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
@@ -102,11 +120,14 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.getElementById('roleSelect').addEventListener('change', function () {
-            var programmingLanguageContainer = document.getElementById('programmingLanguageContainer');
-            if (this.value === 'Developer') {
-                programmingLanguageContainer.classList.remove('d-none');
+            var universityContainer = document.getElementById('universityContainer');
+            var facultyContainer = document.getElementById('facultyContainer');
+            if (this.value === 'Student') {
+                universityContainer.classList.remove('d-none');
+                facultyContainer.classList.remove('d-none');
             } else {
-                programmingLanguageContainer.classList.add('d-none');
+                universityContainer.classList.add('d-none');
+                facultyContainer.classList.add('d-none');
             }
         });
     </script>

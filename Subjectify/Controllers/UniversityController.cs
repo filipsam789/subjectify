@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
+using Microsoft.AspNetCore.Authorization;
 using Repository.Data;
 
 namespace Subjectify.Controllers
 {
+    
     public class UniversityController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -33,7 +35,7 @@ namespace Subjectify.Controllers
                 return NotFound();
             }
 
-            var university = await _context.Universities
+            var university = await _context.Universities.Include(u => u.Faculties)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (university == null)
             {
@@ -42,7 +44,8 @@ namespace Subjectify.Controllers
 
             return View(university);
         }
-
+        
+        [Authorize(Roles = "Admin")]
         // GET: University/Create
         public IActionResult Create()
         {
@@ -50,6 +53,7 @@ namespace Subjectify.Controllers
         }
 
         // POST: University/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name")] University university)
@@ -65,6 +69,7 @@ namespace Subjectify.Controllers
             return View(university);
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: University/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {

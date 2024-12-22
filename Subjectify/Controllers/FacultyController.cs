@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
+using Microsoft.AspNetCore.Authorization;
 using Repository.Data;
 
 namespace Subjectify.Controllers
@@ -36,6 +37,7 @@ namespace Subjectify.Controllers
 
             var faculty = await _context.Faculties
                 .Include(f => f.University)
+                .Include(f => f.Subjects)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (faculty == null)
             {
@@ -46,6 +48,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Faculty/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["UniversityId"] = new SelectList(_context.Universities, "Id", "Name");
@@ -57,6 +60,7 @@ namespace Subjectify.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("UniversityId,Name,Id")] Faculty faculty)
         {
             if (ModelState.IsValid)
@@ -71,6 +75,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Faculty/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -92,6 +97,7 @@ namespace Subjectify.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id, [Bind("UniversityId,Name,Id")] Faculty faculty)
         {
             if (id != faculty.Id)
@@ -124,6 +130,7 @@ namespace Subjectify.Controllers
         }
 
         // GET: Faculty/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -145,6 +152,7 @@ namespace Subjectify.Controllers
         // POST: Faculty/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var faculty = await _context.Faculties.FindAsync(id);

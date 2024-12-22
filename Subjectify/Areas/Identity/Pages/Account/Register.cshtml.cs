@@ -32,8 +32,9 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IFacultyService _facultyService;
+        private readonly IUniversityService _universityService;
         private readonly IUsersService _usersService;
-
         public List<string> Roles { get; set; } = new List<string>();
 
         public RegisterModel(
@@ -43,7 +44,9 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
-            IUsersService usersService)
+            IUsersService usersService, 
+            IFacultyService facultyService, 
+            IUniversityService universityService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -52,6 +55,8 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _roleManager = roleManager;
             _usersService = usersService;
+            _facultyService = facultyService;
+            _universityService = universityService;
             Roles = _roleManager.Roles.Select(r => r.Name).ToList();
         }
 
@@ -98,7 +103,13 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
             [Required]
             public string Address { get; set; }
 
-            public string ProgrammingLanguage { get; set; }
+            public List<University> Universities { get; set; } = new();
+
+            public string UniversityId { get; set; }
+
+            public List<Faculty> Faculties { get; set; } = new();
+
+            public string FacultyId { get; set; }
 
             [Required]
             public string Role { get; set; }
@@ -127,6 +138,13 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            if (Input == null)
+            {
+                Input = new InputModel();
+            }
+            var universities = await _universityService.GetAllUniversitiesAsync();
+            Input.Universities = universities.ToList();
+            Input.Faculties = (await _facultyService.GetAllFacultiesAsync()).ToList();
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -157,7 +175,8 @@ namespace IntegratedSystems.Web.Areas.Identity.Pages.Account
                 {
                     user.Student = new Student
                     {
-                        Id = Guid.Parse(user.Id)
+                        Id = Guid.Parse(user.Id),
+                        FacultyId = Guid.Parse(Input.FacultyId)
                     };
                     user.StudentId = Guid.Parse(user.Id);
                 }
