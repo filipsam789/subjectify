@@ -18,31 +18,66 @@ Layout = "~/Views/Shared/_Layout.cshtml";
     <h4 class="text-muted">@Html.DisplayFor(model => model.University.Name)</h4>
 </div>
 
-<!-- Subjects Section with a Heading -->
-@if (Model.Subjects != null && Model.Subjects.Any())
-{
+<!-- Faculties Section with Filter on Top Right of the Table -->
 <div class="card">
     <div class="card-body">
-        <h4 class="mb-4">Subjects Taught</h4>
-        <table class="table table-bordered table-hover">
-            <tbody>
-            @foreach (var subject in Model.Subjects)
-            {
-            <tr>
-                <td class="p-4">
-                    <a class="d-block fs-4 fw-bold text-dark text-decoration-none"
-                       asp-controller="Subject" asp-action="Details" asp-route-id="@subject.Id">
-                        @subject.Name
-                    </a>
-                </td>
-            </tr>
-            }
-            </tbody>
-        </table>
+        <!-- Filter Dropdown on Top Right of the Table -->
+        <div class="d-flex justify-content-end mb-3">
+            <div class="dropdown">
+                <button
+                    class="btn btn-primary btn-sm dropdown-toggle"
+                    type="button"
+                    id="categoryDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="bi bi-funnel"></i> <!-- Filtering Icon -->
+                    Filter by Subject Category
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                    <li>
+                        <a class="dropdown-item fw-bold" asp-action="Details" asp-route-id="@Model.Id">
+                            <i class="bi bi-filter-circle"></i> All
+                        </a>
+                    </li>
+                    @foreach (var category in ViewBag.Categories as List<Domain.DomainModels.Category>)
+                    {
+                    <li>
+                        <a class="dropdown-item" asp-action="Details" asp-route-id="@Model.Id" asp-route-categoryId="@category.Id">
+                            <i class="bi bi-tag"></i> @category.Name
+                        </a>
+                    </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Subjects Section -->
+        @if (Model.Subjects != null && Model.Subjects.Any())
+        {
+        <div class="card">
+            <div class="card-body">
+                <h4 class="mb-4">Subjects Taught</h4>
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                    @foreach (var subject in Model.Subjects)
+                    {
+                    <tr>
+                        <td class="p-4">
+                            <a class="d-block fs-4 fw-bold text-dark text-decoration-none"
+                               asp-controller="Subject" asp-action="Details" asp-route-id="@subject.Id">
+                                @subject.Name
+                            </a>
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        }
+        else
+        {
+        <p class="mt-3">No subjects found for this faculty.</p>
+        }
     </div>
 </div>
-}
-else
-{
-<p class="mt-3">No subjects found for this faculty.</p>
-}

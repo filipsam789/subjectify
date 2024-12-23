@@ -11,6 +11,7 @@ using Repository.Data;
 
 namespace Subjectify.Controllers
 {
+    [Authorize]
     public class FacultyController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,31 +22,62 @@ namespace Subjectify.Controllers
         }
 
         // GET: Faculty
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(Guid? categoryId)
         {
-            var applicationDbContext = _context.Faculties.Include(f => f.University);
-            return View(await applicationDbContext.ToListAsync());
+            var faculties = _context.Faculties
+                .Include(f => f.University)
+                .Include(f => f.Subjects)
+                .ThenInclude(s => s.Categories);
+
+            List<Faculty> facultiesList = await faculties.ToListAsync();
+            if (categoryId.HasValue)
+            {
+                facultiesList = await faculties.Where(f => f.Subjects.Any(s => s.Categories.Select(c => c.Id).ToList().Contains(categoryId.Value))).ToListAsync();
+            }
+
+            var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories = categories;
+
+            return View(facultiesList);
         }
 
+
         // GET: Faculty/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: Faculty/Details/5
+        public async Task<IActionResult> Details(Guid? id, Guid? categoryId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
+            // Fetch the faculty with related data
             var faculty = await _context.Faculties
                 .Include(f => f.University)
                 .Include(f => f.Subjects)
+                .ThenInclude(s => s.Categories)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (faculty == null)
             {
                 return NotFound();
             }
 
+            // Filter subjects by category if categoryId is provided
+            if (categoryId.HasValue)
+            {
+                faculty.Subjects = faculty.Subjects
+                    .Where(s => s.Categories.Any(c => c.Id == categoryId.Value))
+                    .ToList();
+            }
+
+            // Fetch all categories for the dropdown
+            var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories = categories;
+
             return View(faculty);
         }
+
 
         // GET: Faculty/Create
         [Authorize(Roles = "Admin")]

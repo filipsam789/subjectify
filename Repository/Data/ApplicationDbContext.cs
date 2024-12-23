@@ -22,4 +22,22 @@ public class ApplicationDbContext : IdentityDbContext<SubjectifyUser>
     public virtual DbSet<SubjectifyUser> SubjectifyUsers { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<ReviewRequest> ReviewRequests { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Category>().HasData(
+            new Category { Id = Guid.NewGuid(), Name = "Frontend" },
+            new Category { Id = Guid.NewGuid(), Name = "Backend" },
+            new Category { Id = Guid.NewGuid(), Name = "Artificial Intelligence" },
+            new Category { Id = Guid.NewGuid(), Name = "Networks" },
+            new Category { Id = Guid.NewGuid(), Name = "Data Science" },
+            new Category { Id = Guid.NewGuid(), Name = "Cybersecurity" },
+            new Category { Id = Guid.NewGuid(), Name = "DevOps" },
+            new Category { Id = Guid.NewGuid(), Name = "Cloud Computing" },
+            new Category { Id = Guid.NewGuid(), Name = "Game Development" },
+            new Category { Id = Guid.NewGuid(), Name = "Mobile Development" },
+            new Category { Id = Guid.NewGuid(), Name = "Embedded Systems" }
+        );
+    }
 }

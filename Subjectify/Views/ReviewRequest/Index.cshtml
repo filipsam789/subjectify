@@ -1,0 +1,41 @@
+@model IEnumerable<Domain.DomainModels.ReviewRequest>
+
+@{
+ViewData["Title"] = "Review Requests";
+Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 text-primary">Review Requests</h1>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var request in Model)
+    {
+    var review = request.Review;
+    if (review != null)
+    {
+    <div class="col mb-4">
+        <div class="card shadow-sm border-light">
+            <div class="card-header text-center">
+                <h5 class="card-title">@review.Subject?.Name</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Rating:</strong> @review.Rating</p>
+                <p><strong>Positive Comment:</strong> @review.PositiveComment</p>
+                <p><strong>Negative Comment:</strong> @review.NegativeComment</p>
+
+                <div class="d-flex justify-content-between">
+                    <form method="post" asp-action="Approve" asp-route-id="@request.Id">
+                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    <form method="post" asp-action="Decline" asp-route-id="@request.Id" class="ms-2">
+                        <button type="submit" class="btn btn-danger btn-sm">Decline</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    }
+</div>

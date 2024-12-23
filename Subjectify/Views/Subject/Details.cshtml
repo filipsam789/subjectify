@@ -5,126 +5,130 @@
 ViewData["Title"] = "Subject Details";
 Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<!-- Back Button with Icon at the Top Left -->
-<div class="d-flex justify-content-start mb-3">
-    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
-        <i class="bi bi-arrow-left"></i> Back to List
-    </a>
-</div>
-
-<!-- Subject Name Section -->
-<div class="text-center mb-4">
-    <h1 class="display-4 text-dark">@Model.Name</h1>
-</div>
-
-<!-- Professors Section -->
-@if (Model.Professors != null && Model.Professors.Any())
-{
-<div class="card mb-4">
-    <div class="card-body">
-        <h4 class="mb-4">Professors Teaching This Subject</h4>
-        <div class="row">
-            @foreach (var professor in Model.Professors)
-            {
-            <div class="col-md-4 mb-3">
-                <div class="card p-3 shadow-sm border-light">
-                    <h5 class="text-dark">@professor.FirstName @professor.LastName</h5>
-                </div>
-            </div>
-            }
-        </div>
-    </div>
-</div>
-}
-else
-{
-<p class="mt-3">No professors found for this subject.</p>
-}
-
-<!-- Add Review Button for Students -->
-@if (User.IsInRole("Student"))
-{
-<div class="mb-4">
-    <a class="btn btn-primary btn-lg" asp-action="Create" asp-route-subjectId="@Model.SubjectId" asp-controller="Reviews">Add Review</a>
-</div>
-}
-
-<!-- Average Review Score -->
-@if (Model.Reviews != null && Model.Reviews.Any())
-{
-<div class="card mb-4">
-    <div class="card-body">
-        <h4 class="mb-4">Average Review Score</h4>
-        <div class="text-center" id="averageReviewScore">
-            <div class="my-3">
-                @for (int i = 1; i <= 5; i++)
-                {
-                if (Model.AverageReviewScore >= i)
-                {
-                <i class="bi bi-star-fill text-warning"></i> <!-- Filled star -->
-                }
-                else
-                {
-                <i class="bi bi-star text-muted"></i> <!-- Empty star -->
-                }
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-}
-
-<!-- Reviews Section -->
-@if (Model.Reviews != null && Model.Reviews.Any())
-{
-<div class="card mb-4">
-    <div class="card-body">
-        <h4 class="mb-4">Reviews</h4>
-
-        <!-- Sorting Buttons -->
-        <div class="mb-3">
-            <button class="btn btn-outline-primary" onclick="sortReviews('desc')">Sort by Rating (Highest to Lowest)</button>
-            <button class="btn btn-outline-primary" onclick="sortReviews('asc')">Sort by Rating (Lowest to Highest)</button>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Back Button with Icon at the Top Left -->
+        <div class="d-flex justify-content-start mb-3">
+            <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
         </div>
 
-        <!-- Loop over reviews and display -->
-        <div id="reviewsContainer">
-            @foreach (var review in Model.Reviews)
-            {
-            <div class="review-item mb-4" data-rating="@review.Rating">
-                <div class="d-flex align-items-center">
-                    @for (int i = 1; i <= 5; i++)
+        <!-- Subject Name Section -->
+        <div class="text-center mb-4">
+            <h1 class="display-4 text-dark">@Model.Name</h1>
+        </div>
+
+        <!-- Professors Section -->
+        @if (Model.Professors != null && Model.Professors.Any())
+        {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-4">Professors Teaching This Subject</h4>
+                <div class="row">
+                    @foreach (var professor in Model.Professors)
                     {
-                    <i class="bi bi-star @((i <= review.Rating) ? "text-warning" : "text-muted")"></i>
+                    <div class="col-md-4 mb-3">
+                        <div class="card p-3 shadow-sm border-light">
+                            <h5 class="text-dark">@professor.FirstName @professor.LastName</h5>
+                        </div>
+                    </div>
                     }
-                    <span class="ms-2">(@review.Rating/5)</span>
                 </div>
-                <p class="mt-2"><strong>Positive Comment:</strong> @review.PositiveComment</p>
-                <p class="mt-2"><strong>Negative Comment:</strong> @review.NegativeComment</p>
             </div>
-            }
         </div>
+        }
+        else
+        {
+        <p class="mt-3">No professors found for this subject.</p>
+        }
 
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-4">
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+        <!-- Add Review Button for Students (Moved to the Right) -->
+        @if (User.IsInRole("Student"))
+        {
+        <div class="mb-4 d-flex justify-content-start">
+            <a class="btn btn-primary btn-lg" asp-action="Create" asp-route-subjectId="@Model.SubjectId" asp-controller="Reviews">Request Review</a>
         </div>
+        }
+
+        <!-- Average Review Score -->
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-4">Average Review Score</h4>
+                <div class="text-center" id="averageReviewScore">
+                    <div class="my-3">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                        if (Model.AverageReviewScore >= i)
+                        {
+                        <i class="bi bi-star-fill text-warning fs-4"></i> <!-- Larger filled star -->
+                        }
+                        else
+                        {
+                        <i class="bi bi-star text-muted fs-4"></i> <!-- Larger empty star -->
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Reviews Section -->
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-4">Reviews</h4>
+
+                <!-- Sorting Buttons -->
+                <div class="mb-3">
+                    <button class="btn btn-outline-primary" onclick="sortReviews('desc')">Sort by Rating (Highest to Lowest)</button>
+                    <button class="btn btn-outline-primary" onclick="sortReviews('asc')">Sort by Rating (Lowest to Highest)</button>
+                </div>
+
+                <!-- Loop over reviews and display -->
+                <div id="reviewsContainer">
+                    @foreach (var review in Model.Reviews)
+                    {
+                    <div class="review-item mb-4" data-rating="@review.Rating">
+                        <div class="d-flex align-items-center">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                            <i class="bi bi-star @((i <= review.Rating) ? "text-warning" : "text-muted") fs-4"></i> <!-- Larger stars -->
+                            }
+                            <span class="ms-2">(@review.Rating/5)</span>
+                        </div>
+                        <p class="mt-2"><strong>Positive Comment:</strong> @review.PositiveComment</p>
+                        <p class="mt-2"><strong>Negative Comment:</strong> @review.NegativeComment</p>
+                    </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        }
+        else
+        {
+        <p class="mt-3">No reviews yet for this subject.</p>
+        }
     </div>
+
 </div>
-}
-else
-{
-<p class="mt-3">No reviews yet for this subject.</p>
-}
+
 
 @section Scripts {
 <script>

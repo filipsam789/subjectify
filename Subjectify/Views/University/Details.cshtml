@@ -5,7 +5,7 @@ ViewData["Title"] = "University Details";
 Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Back Button with Icon at the Top Left -->
+<!-- Button Section with Back Button (unchanged) -->
 <div class="d-flex justify-content-start mb-3">
     <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
         <i class="bi bi-arrow-left"></i> Back to List
@@ -17,11 +17,42 @@ Layout = "~/Views/Shared/_Layout.cshtml";
     <h1 class="display-4 text-primary">@Html.DisplayFor(model => model.Name)</h1>
 </div>
 
-<!-- Faculties Section -->
+<!-- Faculties Section with Filter on Top Right of the Table -->
 @if (Model.Faculties != null && Model.Faculties.Any())
 {
 <div class="card">
     <div class="card-body">
+        <!-- Filter Dropdown on Top Right of the Table -->
+        <div class="d-flex justify-content-end mb-3">
+            <div class="dropdown">
+                <button
+                    class="btn btn-primary btn-sm dropdown-toggle"
+                    type="button"
+                    id="categoryDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="bi bi-funnel"></i> <!-- Filtering Icon -->
+                    Filter by Subject Category
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                    <li>
+                        <a class="dropdown-item fw-bold" asp-action="Details" asp-route-id="@Model.Id">
+                            <i class="bi bi-filter-circle"></i> All
+                        </a>
+                    </li>
+                    @foreach (var category in ViewBag.Categories as List<Domain.DomainModels.Category>)
+                    {
+                    <li>
+                        <a class="dropdown-item" asp-action="Details" asp-route-id="@Model.Id" asp-route-categoryId="@category.Id">
+                            <i class="bi bi-tag"></i> @category.Name
+                        </a>
+                    </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Faculties Table -->
         <table class="table table-bordered table-hover">
             <tbody>
             @foreach (var faculty in Model.Faculties)

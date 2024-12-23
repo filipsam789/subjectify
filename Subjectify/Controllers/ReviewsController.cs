@@ -9,6 +9,7 @@ using Service.Interface;
 
 namespace Subjectify.Controllers
 {
+    [Authorize]
     public class ReviewsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -80,7 +81,11 @@ namespace Subjectify.Controllers
             {
                 review.Id = Guid.NewGuid();
                 review.Timestamp=DateTime.Now;
+                var req = new ReviewRequest();
+                req.ReviewId = review.Id;
+                req.Id = Guid.NewGuid();
                 _context.Add(review);
+                _context.Add(req);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Subject", new { id = review.SubjectId });
             }

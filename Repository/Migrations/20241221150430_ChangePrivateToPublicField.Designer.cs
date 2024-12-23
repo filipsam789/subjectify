@@ -2,35 +2,23 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.Data;
 
 #nullable disable
 
-namespace Subjectify.Domain.DomainModels.Data.Migrations
+namespace Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241221150430_ChangePrivateToPublicField")]
+    partial class ChangePrivateToPublicField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
-
-            modelBuilder.Entity("CategorySubject", b =>
-                {
-                    b.Property<Guid>("CategoriesId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SubjectsId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CategoriesId", "SubjectsId");
-
-                    b.HasIndex("SubjectsId");
-
-                    b.ToTable("CategorySubject");
-                });
 
             modelBuilder.Entity("Domain.DomainModels.Admin", b =>
                 {
@@ -41,78 +29,6 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Admins");
-                });
-
-            modelBuilder.Entity("Domain.DomainModels.Category", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("2465616e-4c3e-4b8b-ab30-6ca5c9b5e415"),
-                            Name = "Frontend"
-                        },
-                        new
-                        {
-                            Id = new Guid("c7a12c23-ac69-4cef-b52f-77a744afe96f"),
-                            Name = "Backend"
-                        },
-                        new
-                        {
-                            Id = new Guid("904efdea-fc65-48d9-9547-4a053cb684a6"),
-                            Name = "Artificial Intelligence"
-                        },
-                        new
-                        {
-                            Id = new Guid("3e752dd9-a938-4c7c-a7eb-b88742670ae8"),
-                            Name = "Networks"
-                        },
-                        new
-                        {
-                            Id = new Guid("c3de1407-89f7-4b7a-9d0d-acf585c8cdd4"),
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("ec2d623f-3fb8-49e5-bcb9-44e0ca1def8b"),
-                            Name = "Cybersecurity"
-                        },
-                        new
-                        {
-                            Id = new Guid("c9d9e0e8-b548-4e86-a0c8-07240f363a66"),
-                            Name = "DevOps"
-                        },
-                        new
-                        {
-                            Id = new Guid("a7c8aae2-0baa-4c24-94b5-7dd27fb46051"),
-                            Name = "Cloud Computing"
-                        },
-                        new
-                        {
-                            Id = new Guid("29c4638e-420a-4e2b-8366-f823b2830096"),
-                            Name = "Game Development"
-                        },
-                        new
-                        {
-                            Id = new Guid("a6169928-f023-4c03-9f98-ed71bf69a1c7"),
-                            Name = "Mobile Development"
-                        },
-                        new
-                        {
-                            Id = new Guid("0455586d-7051-4bdb-b9bd-1876aebeafa6"),
-                            Name = "Embedded Systems"
-                        });
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Faculty", b =>
@@ -165,9 +81,6 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("NegativeComment")
                         .HasColumnType("TEXT");
 
@@ -193,22 +106,6 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("Reviews");
-                });
-
-            modelBuilder.Entity("Domain.DomainModels.ReviewRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("ReviewId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewId");
-
-                    b.ToTable("ReviewRequests");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Student", b =>
@@ -496,21 +393,6 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.ToTable("ProfessorSubject");
                 });
 
-            modelBuilder.Entity("CategorySubject", b =>
-                {
-                    b.HasOne("Domain.DomainModels.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.DomainModels.Subject", null)
-                        .WithMany()
-                        .HasForeignKey("SubjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.DomainModels.Faculty", b =>
                 {
                     b.HasOne("Domain.DomainModels.University", "University")
@@ -550,17 +432,6 @@ namespace Subjectify.Domain.DomainModels.Data.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Domain.DomainModels.ReviewRequest", b =>
-                {
-                    b.HasOne("Domain.DomainModels.Review", "Review")
-                        .WithMany()
-                        .HasForeignKey("ReviewId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("Domain.DomainModels.Student", b =>

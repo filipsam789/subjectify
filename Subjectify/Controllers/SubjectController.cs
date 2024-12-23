@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Domain.DomainModels;
 using Domain.DTO;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Repository.Data;
 using Service.Interface;
 
 namespace Subjectify.Controllers
 {
+    [Authorize]
     public class SubjectController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,28 +28,51 @@ namespace Subjectify.Controllers
         }
 
         // GET: Subject
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(Guid? categoryId)
         {
-            var subjectsDb = _context.Subjects.Include(s => s.Faculty);
+            var subjectsDb = _context.Subjects
+                .Include(s => s.Faculty)
+                .Include(s => s.Categories);
             List<Subject> subjects = new List<Subject>();
+
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = _usersService.GetPlatformUserById(currentUserId);
-            if (User.IsInRole("Student"))
+
+            // Filter by category if categoryId is provided
+            if (categoryId.HasValue)
             {
-                subjects = subjectsDb.Where(s => s.FacultyId == user.Student.FacultyId).ToList();
+                subjects = await subjectsDb
+                    .Where(s => s.Categories.Any(c => c.Id == categoryId.Value))
+                    .ToListAsync();
+            }
+            else
+            {
+                if (User.IsInRole("Student"))
+                {
+                    subjects = await subjectsDb
+                        .Where(s => s.FacultyId == user.Student.FacultyId)
+                        .ToListAsync();
+                }
+
+                if (User.IsInRole("Admin"))
+                {
+                    subjects = await subjectsDb.ToListAsync();
+                }
             }
 
-            if (User.IsInRole("Admin"))
-            {
-                subjects = subjectsDb.ToList();
-            }
+            var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories = categories;
+
             return View(subjects);
         }
 
+
         // GET: Subject/Details/5
         public async Task<IActionResult> Details(Guid? id)
-        {var subject = _context.Subjects
+        {
+            var subject = _context.Subjects
                 .Include(s => s.Professors)
+                .Include(s => s.Categories)
                 .Include(s => s.Reviews)
                 .ThenInclude(r => r.Student)  
                 .FirstOrDefault(s => s.Id == id);
@@ -56,6 +82,19 @@ namespace Subjectify.Controllers
                 return NotFound();
             }
 
+            var approvedReviews = subject.Reviews.Where(r => r.IsApproved).ToList();;
+            var reviews = new List<ReviewDTO>();
+            double reviewScore = 0;
+            if (approvedReviews.Any())
+            {
+                reviews = subject.Reviews.Where(r => r.IsApproved).Select(r => new ReviewDTO
+                {
+                    Rating = r.Rating,
+                    PositiveComment = r.PositiveComment,
+                    NegativeComment = r.NegativeComment
+                }).ToList();
+                reviewScore=subject.Reviews.Where(r => r.IsApproved).Average(r => r.Rating);
+            }
             var subjectDetailsDTO = new SubjectDetailsDTO
             {
                 Name = subject.Name,
@@ -64,13 +103,8 @@ namespace Subjectify.Controllers
                     FirstName = p.FirstName,
                     LastName = p.LastName
                 }).ToList(),
-                Reviews = subject.Reviews.Select(r => new ReviewDTO
-                {
-                    Rating = r.Rating,
-                    PositiveComment = r.PositiveComment,
-                    NegativeComment = r.NegativeComment
-                }).ToList(),
-                AverageReviewScore = subject.Reviews.Any() ? subject.Reviews.Average(r => r.Rating) : 0,
+                Reviews = reviews,
+                AverageReviewScore = reviewScore,
                 SubjectId = id
             };
 
@@ -84,6 +118,7 @@ namespace Subjectify.Controllers
         {
             ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name");
             ViewData["ProfessorList"] = new SelectList(_context.Professors, "Id", "FullName");
+            ViewData["CategoryList"] = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
 
@@ -93,7 +128,7 @@ namespace Subjectify.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,FacultyId")] Subject subject, Guid[] selectedProfessorIds)
+        public async Task<IActionResult> Create([Bind("Name,FacultyId")] Subject subject, Guid[] selectedProfessorIds, Guid[] selectedCategoryIds)
         {
             if (ModelState.IsValid)
             {
@@ -103,8 +138,12 @@ namespace Subjectify.Controllers
                 var professors = await _context.Professors
                     .Where(p => selectedProfessorIds.Contains(p.Id))
                     .ToListAsync();
+                var categories = await _context.Categories
+                    .Where(p => selectedCategoryIds.Contains(p.Id))
+                    .ToListAsync();
         
                 subject.Professors = professors;
+                subject.Categories = categories;
 
                 _context.Add(subject);
                 await _context.SaveChangesAsync();

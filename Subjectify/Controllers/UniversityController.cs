@@ -11,7 +11,7 @@ using Repository.Data;
 
 namespace Subjectify.Controllers
 {
-    
+    [Authorize]
     public class UniversityController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,22 +28,38 @@ namespace Subjectify.Controllers
         }
 
         // GET: University/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid? id, Guid? categoryId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var university = await _context.Universities.Include(u => u.Faculties)
+            var university = await _context.Universities
+                .Include(u => u.Faculties)
+                .ThenInclude(f => f.Subjects)
+                .ThenInclude(s => s.Categories)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (university == null)
             {
                 return NotFound();
             }
 
+            // Filter faculties based on category if categoryId is provided
+            if (categoryId.HasValue)
+            {
+                university.Faculties = university.Faculties
+                    .Where(f => f.Subjects.Any(s => s.Categories.Any(c => c.Id == categoryId.Value)))
+                    .ToList();
+            }
+
+            var categories = await _context.Categories.ToListAsync();
+            ViewBag.Categories = categories;
+
             return View(university);
         }
+
         
         [Authorize(Roles = "Admin")]
         // GET: University/Create
